@@ -174,7 +174,7 @@ function closeSidebar() {
 
 // L.MarkerClusterGroup extends L.FeatureGroup
 // by clustering the markers contained within
-let markers = L.markerClusterGroup({
+const markers = L.markerClusterGroup({
   spiderfyOnMaxZoom: true, // Disable spiderfying behavior
   showCoverageOnHover: false, // Disable cluster spiderfier polygon
 
@@ -195,54 +195,140 @@ function createCustomDivIcon() {
 // --------------- Load Markers to the map --------------- //
 // ------------------------------------------------------- //
 
-// Fetch marker data from the backend API
-// Define a function to fetch and create markers
+
 function loadMarkers() {
-  fetch('http://localhost:8080/api/v1/marker/getMarkers')
-      .then(response => response.json())
-      .then(markerData => {
-        // Iterate over the marker data and create markers
-        markerData.forEach(data => {
-          const { latitude, longitude, title, body } = data;
+  fetch('http://localhost:8080/v1/stage')
+    .then(response => response.json())
+    .then(markerData => {
+      markerData.forEach(data => {
+        const { latitude, longitude, name, stageData } = data;
 
-          // Create a marker with the custom divIcon
-          const marker = L.marker(new L.LatLng(latitude, longitude), {
-            icon: createCustomDivIcon(),
-            title: title
-          });
-
-          // Create the popup content
-          const popupContent = document.createElement('div');
-          const titleElement = document.createElement('h3');
-          titleElement.textContent = title;
-          popupContent.appendChild(titleElement);
-          const bodyElement = document.createElement('div');
-          bodyElement.innerHTML = body;
-          popupContent.appendChild(bodyElement);
-
-          // Bind the popup to the marker and set the content
-          marker.bindPopup(popupContent);
-
-          // Add a click event listener to zoom the map
-          marker.on("click", clickZoom);
-
-          // Add the marker to the marker cluster group
-          markers.addLayer(marker);
+        // Find the specific data you want for the main popup body
+        const ajaluguData = stageData.find(item => {
+          return item.type === 'Ajalugu';
         });
-        // Add the marker cluster group to the map after all markers are loaded
-        map.addLayer(markers);
-      })
-      .catch(error => {
-        console.error('Error fetching marker data:', error);
+
+        const kunaEhitatiData = stageData.find(item => {
+          return item.type === 'Kuna ehitati';
+        });
+
+        const moodmiseKuupaevData = stageData.find(item => {
+          return item.type === 'Mõõtmise kuupäev';
+        });
+
+        const sygavusData = stageData.find(item => {
+          return item.type === 'Sügavus';
+        });
+
+        const kesEhitasData = stageData.find(item => {
+          return item.type === 'Kes ehitas';
+        });
+
+        // Create a marker with the custom divIcon
+        const marker = L.marker(new L.LatLng(latitude, longitude), {
+          icon: createCustomDivIcon(),
+        });
+
+        // Create the popup content for the main popup body
+        const popupContent = document.createElement('div');
+        const titleElement = document.createElement('h3');
+        titleElement.textContent = name;
+        popupContent.appendChild(titleElement);
+
+        // Add Ajalugu data to the main popup body
+        if (ajaluguData) {
+          const ajaluguElement = document.createElement('p');
+          ajaluguElement.textContent = `${ajaluguData.type}: ${ajaluguData.value}`;
+          popupContent.appendChild(ajaluguElement);
+        }
+
+        // Add Kuna ehitati data to the main popup body
+        if (kunaEhitatiData) {
+          const kunaEhitatiElement = document.createElement('p');
+          kunaEhitatiElement.textContent = `${kunaEhitatiData.type}: ${kunaEhitatiData.value}`;
+          popupContent.appendChild(kunaEhitatiElement);
+        }
+
+        // Add Mõõtmise kuupäev data to the main popup body
+        if (moodmiseKuupaevData) {
+          const moodmiseKuupaevElement = document.createElement('p');
+          moodmiseKuupaevElement.textContent = `${moodmiseKuupaevData.type}: ${moodmiseKuupaevData.value}`;
+          popupContent.appendChild(moodmiseKuupaevElement);
+        }
+
+        // Add Sügavus data to the main popup body
+        if (sygavusData) {
+          const sygavusElement = document.createElement('p');
+          sygavusElement.textContent = `${sygavusData.type}: ${sygavusData.value}`;
+          popupContent.appendChild(sygavusElement);
+        }
+
+        // Add Kes ehitas data to the main popup body
+        if (kesEhitasData) {
+          const kesEhitasElement = document.createElement('p');
+          kesEhitasElement.textContent = `${kesEhitasData.type}: ${kesEhitasData.value}`;
+          popupContent.appendChild(kesEhitasElement);
+        }
+
+        // Create a button for the nested popup
+    // Create a button for the nested popup
+    const nestedPopupButton = document.createElement('button');
+    nestedPopupButton.textContent = 'Rohkem';
+    nestedPopupButton.className = 'nested-popup-button'; // Apply the CSS class
+
+    nestedPopupButton.addEventListener('click', () => {
+      openNestedPopup(data);
+    });
+
+    popupContent.appendChild(nestedPopupButton);
+
+
+        // Create the Leaflet popup for the main popup body
+        const popup = L.popup().setContent(popupContent);
+
+        // Bind the popup to the marker and set the content
+        marker.bindPopup(popup);
+
+        // Add a click event listener to zoom the map
+        marker.on('click', () => {
+          map.setView([latitude, longitude], 12); // Adjust the zoom level as needed
+        });
+
+        // Add the marker to the marker cluster group
+        markers.addLayer(marker);
       });
+
+      // Add the marker cluster group to the map after all markers are loaded
+      map.addLayer(markers);
+    })
+    .catch(error => {
+      console.error('Error fetching marker data:', error);
+    });
 }
 
+function openNestedPopup(data) {
+  // Extract the required data for the nested popup
+  const { stageData } = data;
+
+  // Create a string containing the nested popup content
+  let nestedPopupContent = '<h3>Mõõtmistulemused</h3>';
+  nestedPopupContent += '<ul>';
+  stageData.forEach(item => {
+    nestedPopupContent += `<li>${item.type}: ${item.value}</li>`;
+  });
+  nestedPopupContent += '</ul>';
+
+  // Create and open the nested popup
+  const nestedPopup = L.popup()
+    .setLatLng([data.latitude, data.longitude])
+    .setContent(nestedPopupContent)
+    .openOn(map);
+}
 // Call the loadMarkers function when the page loads
 window.addEventListener('load', loadMarkers);
 
 // Add all markers to map
 map.addLayer(markers);
-
 
 // ---------------------------------------------------- //
 // --------------- Search functionality --------------- //
@@ -280,7 +366,7 @@ searchbox.onInput("keyup", function (e) {
     if (map.getZoom() < 11){
       map.setZoom(11);
     }
-    const searchUrl = `http://localhost:8080/api/v1/person/searchByName?name=${value}`;
+    const searchUrl = `http://localhost:8080/v1/stage/searchByName?name=${value}`;
 
     fetch(searchUrl)
         .then(response => response.json())
@@ -486,4 +572,12 @@ document.getElementById('emailForm').addEventListener('submit', function(event) 
         console.error('Error:', error);
         alert('An error occurred while sending the email. Please try again later.');
       });
+});
+
+
+document.addEventListener("visibilitychange", function() {
+  if (document.visibilityState === 'hidden') {
+} 
+  else {
+}
 });
