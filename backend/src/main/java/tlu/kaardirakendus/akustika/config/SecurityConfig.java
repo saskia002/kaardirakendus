@@ -26,6 +26,10 @@ public class SecurityConfig {
                   req.anyRequest().denyAll();
                 })
                 .oauth2Login(withDefaults())
+                .logout(logout -> {
+                    logout.logoutUrl("/v1/auth/logout");
+                    logout.clearAuthentication(true);
+                })
                 .headers(withDefaults())
                 .httpBasic(withDefaults())
                 .build();
