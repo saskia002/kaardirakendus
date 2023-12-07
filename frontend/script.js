@@ -201,28 +201,17 @@ function loadMarkers() {
     .then(response => response.json())
     .then(markerData => {
       markerData.forEach(data => {
-        const { latitude, longitude, name, stageData } = data;
+        const { latitude, longitude, name, stageData, address } = data;
 
         // Find the specific data you want for the main popup body
-        const ajaluguData = stageData.find(item => {
-          return item.type === 'Ajalugu';
-        });
-
-        const kunaEhitatiData = stageData.find(item => {
-          return item.type === 'Kuna ehitati';
-        });
-
-        const moodmiseKuupaevData = stageData.find(item => {
-          return item.type === 'Mõõtmise kuupäev';
-        });
-
-        const sygavusData = stageData.find(item => {
-          return item.type === 'Sügavus';
-        });
-
-        const kesEhitasData = stageData.find(item => {
-          return item.type === 'Kes ehitas';
-        });
+        const ajaluguData = stageData.find(item => item.type === 'Ajalugu');
+        const kunaEhitatiData = stageData.find(item => item.type === 'Kuna ehitati');
+        const mootmiseKuupaevData = stageData.find(item => item.type === 'Mõõtmise kuupäev');
+        const sygavusData = stageData.find(item => item.type === 'Sügavus');
+        const kesEhitasData = stageData.find(item => item.type === 'Kes ehitas');
+        const helitugevuseData = stageData.find(item => item.type === 'Helitugevuse mõõtmine');
+        const laiusData = stageData.find(item => item.type === 'Laius');
+        const astmeteArvData = stageData.find(item => item.type === 'Astmete arv');
 
         // Create a marker with the custom divIcon
         const marker = L.marker(new L.LatLng(latitude, longitude), {
@@ -234,6 +223,14 @@ function loadMarkers() {
         const titleElement = document.createElement('h3');
         titleElement.textContent = name;
         popupContent.appendChild(titleElement);
+
+        
+        // Add Address data to the main popup body
+        if (address) {
+          const addressElement = document.createElement('p');
+          addressElement.textContent = `Aadress: ${address}`;
+          popupContent.appendChild(addressElement);
+        }
 
         // Add Ajalugu data to the main popup body
         if (ajaluguData) {
@@ -249,12 +246,19 @@ function loadMarkers() {
           popupContent.appendChild(kunaEhitatiElement);
         }
 
-        // Add Mõõtmise kuupäev data to the main popup body
-        if (moodmiseKuupaevData) {
-          const moodmiseKuupaevElement = document.createElement('p');
-          moodmiseKuupaevElement.textContent = `${moodmiseKuupaevData.type}: ${moodmiseKuupaevData.value}`;
-          popupContent.appendChild(moodmiseKuupaevElement);
+        // Add Kes ehitas data to the main popup body
+        if (kesEhitasData) {
+          const kesEhitasElement = document.createElement('p');
+          kesEhitasElement.textContent = `${kesEhitasData.type}: ${kesEhitasData.value}`;
+          popupContent.appendChild(kesEhitasElement);
         }
+
+        /*// Add Mõõtmise kuupäev data to the main popup body
+        if (mootmiseKuupaevData) {
+          const mootmiseKuupaevElement = document.createElement('p');
+          mootmiseKuupaevElement.textContent = `${mootmiseKuupaevData.type}: ${mootmiseKuupaevData.value}`;
+          popupContent.appendChild(mootmiseKuupaevElement);
+        }*/
 
         // Add Sügavus data to the main popup body
         if (sygavusData) {
@@ -263,36 +267,49 @@ function loadMarkers() {
           popupContent.appendChild(sygavusElement);
         }
 
-        // Add Kes ehitas data to the main popup body
-        if (kesEhitasData) {
-          const kesEhitasElement = document.createElement('p');
-          kesEhitasElement.textContent = `${kesEhitasData.type}: ${kesEhitasData.value}`;
-          popupContent.appendChild(kesEhitasElement);
+        // Add Laius data to the main popup body
+        if (laiusData) {
+          const laiusElement = document.createElement('p');
+          laiusElement.textContent = `${laiusData.type}: ${laiusData.value}`;
+          popupContent.appendChild(laiusElement);
         }
 
+        // Add Address data to the main popup body
+        if (astmeteArvData) {
+          const astmeteArvElement = document.createElement('p');
+          astmeteArvElement.textContent = `${astmeteArvData.type}: ${astmeteArvData.value}`;
+          popupContent.appendChild(astmeteArvElement);
+        }
+
+        if (helitugevuseData) {
+          helitugevuseData.value.forEach(suundData => {
+            if (suundData.type === 'laululava ava suund') {
+              const helitugevuseElement = document.createElement('p');
+              helitugevuseElement.textContent = `Laululava ava suund: ${suundData.value}`;
+              popupContent.appendChild(helitugevuseElement);
+            }})
+        }
+
+
+
+
+
         // Create a button for the nested popup
-    // Create a button for the nested popup
-    const nestedPopupButton = document.createElement('button');
-    nestedPopupButton.textContent = 'Rohkem';
-    nestedPopupButton.className = 'nested-popup-button'; // Apply the CSS class
+        const nestedPopupButton = document.createElement('button');
+        nestedPopupButton.textContent = 'Mõõtmistulemused';
+        nestedPopupButton.className = 'nested-popup-button'; // Apply the CSS class
 
-    nestedPopupButton.addEventListener('click', () => {
-      openNestedPopup(data);
-    });
+        nestedPopupButton.addEventListener('click', () => {
+          openNestedPopup(data);
+        });
 
-    popupContent.appendChild(nestedPopupButton);
-
+        popupContent.appendChild(nestedPopupButton);
 
         // Create the Leaflet popup for the main popup body
         const popup = L.popup().setContent(popupContent);
 
         // Bind the popup to the marker and set the content
         marker.bindPopup(popup);
-
-        // Add a click event listener to zoom the map
-        marker.on('click', () => {
-          map.setView([latitude, longitude], 12); // Adjust the zoom level as needed
-        });
 
         // Add the marker to the marker cluster group
         markers.addLayer(marker);
@@ -307,29 +324,62 @@ function loadMarkers() {
 }
 
 function openNestedPopup(data) {
-  // Extract the required data for the nested popup
-  const { stageData } = data;
+  const { stageData, latitude, longitude } = data;
 
-  // Create a string containing the nested popup content
-  let nestedPopupContent = '<h3>Mõõtmistulemused</h3>';
-  nestedPopupContent += '<ul>';
-  stageData.forEach(item => {
-    nestedPopupContent += `<li>${item.type}: ${item.value}</li>`;
-  });
-  nestedPopupContent += '</ul>';
+  const helitugevuseData = stageData.find(item => item.type === 'Helitugevuse mõõtmine');
+  const ilmData = stageData.find(item => item.type === 'Ilm');
+  const mootmiseKpData = stageData.find(item => item.type === 'Mõõtmise kuupäev');
+  const tuulData = stageData.find(item => item.type === 'Tuul');
+  const suundData = stageData.find(item => item.type === 'laululava ava suund');
 
-  // Create and open the nested popup
+  let nestedPopupContent = '<h3>Ilm</h3>';
+  if (mootmiseKpData){
+    nestedPopupContent += `<p>${mootmiseKpData.type}: ${mootmiseKpData.value}</p>`;
+  }
+  if(ilmData){
+    nestedPopupContent += `<p>${ilmData.type}: ${ilmData.value}</p>`;
+  }
+  if(tuulData){
+    nestedPopupContent += `<p>${tuulData.type}: ${tuulData.value}</p>`;
+  }
+  if(suundData){
+    nestedPopupContent += `<p>${suundData.type}: ${suundData.value}</p>`;
+  }
+
+  if (helitugevuseData) {
+    nestedPopupContent += '<h3>Helitugevuse mõõtmine</h3>';
+    
+    helitugevuseData.value.forEach(dBData => {
+      if (dBData.type === 'publiku keskel') {
+        nestedPopupContent += `<p>Publiku keskel: ${dBData.value} ${dBData.unit}</p>`;
+      }})
+    helitugevuseData.value.forEach(threeMData => {
+      if (threeMData.type === '3m') {
+        nestedPopupContent += `<p>${threeMData.type}: ${threeMData.value} ${threeMData.unit}</p>`;
+      }})
+
+    helitugevuseData.value.forEach(fiveMData => {
+      if (fiveMData.type === '5m') {
+        nestedPopupContent += `<p>${fiveMData.type}: ${fiveMData.value} ${fiveMData.unit}</p>`;
+      }})
+    helitugevuseData.value.forEach(tenMData => {
+      if (tenMData.type === '10m') {
+        nestedPopupContent += `<p>${tenMData.type}: ${tenMData.value} ${tenMData.unit}</p>`;
+      }})
+
+  }
+  // Create the Leaflet popup for the nested popup
   const nestedPopup = L.popup()
-    .setLatLng([data.latitude, data.longitude])
+    .setLatLng([latitude, longitude])
     .setContent(nestedPopupContent)
     .openOn(map);
 }
+
 // Call the loadMarkers function when the page loads
 window.addEventListener('load', loadMarkers);
 
 // Add all markers to map
 map.addLayer(markers);
-
 // ---------------------------------------------------- //
 // --------------- Search functionality --------------- //
 // ---------------------------------------------------- //
