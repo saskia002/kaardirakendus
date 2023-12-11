@@ -46,7 +46,7 @@ osmMap.addTo(map);
 
 let baseLayers = {
   "Klassika": osmMap,
-  "Dark mode": landMap,
+  "Tume": landMap,
 };
 
 L.control.layers(baseLayers).addTo(map);
@@ -291,7 +291,83 @@ function loadMarkers() {
         }
 
 
+  fetch(`http://localhost:8080/v1/stage/${data.id}/images/info`)
+  .then(response => response.json())
+  .then(images => {
+    if (images.length > 0) {
+      const imageGallery = document.createElement('div');
+      imageGallery.className = 'leaflet-popup-image-gallery';
 
+      const currentImageContainer = document.createElement('div');
+      currentImageContainer.className = 'current-image-container';
+
+      const currentImage = document.createElement('a');
+      currentImage.href = images[0].imageUri; // Set the source of the first image for the lightbox
+      currentImage.setAttribute('data-fancybox', 'gallery');
+      currentImage.setAttribute('data-caption', images[0].imageName); // Set caption for the first image
+      const image = document.createElement('img');
+      image.src = images[0].imageUri; // Set the source of the first image to display
+      image.alt = images[0].imageName; // Set the alt text of the first image
+      image.style.maxWidth = '300px'; // Set maximum width
+      image.style.maxHeight = '300px'; // Set maximum height
+      currentImage.appendChild(image);
+      currentImageContainer.appendChild(currentImage);
+
+      imageGallery.appendChild(currentImageContainer);
+
+      const arrowsAndCounter = document.createElement('div');
+      arrowsAndCounter.className = 'arrows-and-counter';
+
+      const prevArrow = document.createElement('div');
+      prevArrow.className = 'arrow arrow-left';
+      prevArrow.innerHTML = '&lt;';
+
+      const imageCounter = document.createElement('div');
+      imageCounter.className = 'image-counter';
+      imageCounter.textContent = `1 of ${images.length}`;
+
+      const nextArrow = document.createElement('div');
+      nextArrow.className = 'arrow arrow-right';
+      nextArrow.innerHTML = '&gt;';
+
+      arrowsAndCounter.appendChild(prevArrow);
+      arrowsAndCounter.appendChild(imageCounter);
+      arrowsAndCounter.appendChild(nextArrow);
+
+      imageGallery.appendChild(arrowsAndCounter);
+
+      let currentImageIndex = 0;
+
+      nextArrow.addEventListener('click', () => {
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        image.src = images[currentImageIndex].imageUri;
+        image.alt = images[currentImageIndex].imageName;
+        currentImage.href = images[currentImageIndex].imageUri;
+        currentImage.setAttribute('data-caption', images[currentImageIndex].imageName);
+        imageCounter.textContent = `${currentImageIndex + 1} of ${images.length}`;
+      });
+
+      prevArrow.addEventListener('click', () => {
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        image.src = images[currentImageIndex].imageUri;
+        image.alt = images[currentImageIndex].imageName;
+        currentImage.href = images[currentImageIndex].imageUri;
+        currentImage.setAttribute('data-caption', images[currentImageIndex].imageName);
+        imageCounter.textContent = `${currentImageIndex + 1} of ${images.length}`;
+      });
+
+      popupContent.appendChild(imageGallery);
+
+      // Activate Fancybox for the image gallery
+      $('[data-fancybox="gallery"]').fancybox({
+        loop: true,
+        buttons: ['slideShow', 'fullScreen', 'thumbs', 'close'],
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching images:', error);
+  });
 
 
         // Create a button for the nested popup
@@ -322,6 +398,7 @@ function loadMarkers() {
       console.error('Error fetching marker data:', error);
     });
 }
+
 
 function openNestedPopup(data) {
   const { stageData, latitude, longitude } = data;
@@ -376,7 +453,7 @@ function openNestedPopup(data) {
 }
 
 // Call the loadMarkers function when the page loads
-window.addEventListener('load', loadMarkers);
+//window.addEventListener('load', loadMarkers);
 
 // Add all markers to map
 map.addLayer(markers);
