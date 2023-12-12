@@ -295,6 +295,11 @@ function loadMarkers() {
   .then(response => response.json())
   .then(images => {
     if (images.length > 0) {
+      
+      const emptyLine = document.createElement('div');
+      emptyLine.style.height = '20px'; // Adjust the height for the space as needed
+      popupContent.appendChild(emptyLine);
+
       const imageGallery = document.createElement('div');
       imageGallery.className = 'leaflet-popup-image-gallery';
 
@@ -453,7 +458,7 @@ function openNestedPopup(data) {
 }
 
 // Call the loadMarkers function when the page loads
-//window.addEventListener('load', loadMarkers);
+window.addEventListener('load', loadMarkers);
 
 // Add all markers to map
 map.addLayer(markers);
@@ -493,12 +498,17 @@ searchbox.onInput("keyup", function (e) {
     if (map.getZoom() < 11){
       map.setZoom(11);
     }
-    const searchUrl = `http://localhost:8080/v1/stage/searchByName?name=${value}`;
+    
+    const searchUrl = 'http://localhost:8080/v1/stage';
 
     fetch(searchUrl)
-        .then(response => response.json())
-        .then(data => {
-          const persons = data;
+    .then(response => response.json())
+    .then(markerData => {
+      const filteredData = markerData.filter(data => {
+        const nameMatches = data.name.toLowerCase().includes(searchName);
+        const addressMatches = data.address.toLowerCase().includes(searchAddress);
+        return nameMatches && addressMatches;
+      });
 
           // Clear the existing dropdown options
           searchbox.clearItems();
