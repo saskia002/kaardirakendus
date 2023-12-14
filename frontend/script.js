@@ -6,13 +6,14 @@
 
 const osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
 const cartoDB = '<a href="http://cartodb.com/attributions">CartoDB</a>';
-// const stamenToner = <a href="http://maps.stamen.com">StamenToner</a>
 
 const osmUrl = "http://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const osmAttrib = `&copy; ${osmLink} Contributors`;
 
 const landUrl = "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png";
 const cartoAttrib = `&copy; ${osmLink} Contributors & ${cartoDB}`;
+
+const baseUrl = 'http://localhost:8080';
 
 
 const osmMap = L.tileLayer(osmUrl, { attribution: osmAttrib });
@@ -24,7 +25,6 @@ const landMap = L.tileLayer(landUrl, { attribution: cartoAttrib });
 // ---------------------------------------------------- //
 // config map
 let config = {
-  // See siin määrab ära default mapi
   layers: [osmMap],
   minZoom: 5,
   maxZoom: 18,
@@ -53,7 +53,7 @@ L.control.layers(baseLayers).addTo(map);
 // ------------------------------------------------------ //
 // ---------------------- Sidebar ----------------------- //
 // ------------------------------------------------------ //
-// sidebar
+
 
 const menuItems = document.querySelectorAll(".menu-item");
 const sidebar = document.querySelector(".sidebar");
@@ -123,51 +123,6 @@ function closeSidebar() {
 }
 
 
-
-// -------------------------------------------------------- //
-// --------------- Modify styles for layers --------------- //
-// -------------------------------------------------------- //
-// function setStyles(selectedLayer) {
-//   let sidebar = document.querySelector(".sidebar");
-//   let sidebartext = document.querySelector(".sidebar-content");
-//   let sidebarelements = document.querySelector(".sidebar svg");
-//
-//   if (selectedLayer === "Klassika") {
-//     sidebar.style.background = "#fff"; // Light color
-//     sidebartext.style.color = "black";
-//     sidebarelements.style.fill = "#3f3f3f";
-//     document.getElementById("dynamic-styles").textContent = ".sidebar::before { background: #64a1e8; }";
-//     sidebar.classList.add("klassika");
-//     sidebar.classList.remove("dark-mode");
-//   } else if (selectedLayer === "Dark mode") {
-//     sidebar.style.background = "#415a77"; // Dark color
-//     sidebartext.style.color = "#ffffff";
-//     sidebarelements.style.fill = "#ccc";
-//     document.getElementById("dynamic-styles").textContent = ".sidebar::before { background: #163c48; }";
-//     sidebar.classList.add("dark-mode");
-//     sidebar.classList.remove("klassika");
-//
-//     // Additional code for dark mode marker color
-//     let markerIcons = document.querySelectorAll(".circle-icon");
-//     for (let i = 0; i < markerIcons.length; i++) {
-//       markerIcons[i].style.backgroundColor = "purple";
-//     }
-//   }
-// }
-//
-// map.on("baselayerchange", function(event) {
-//   let selectedLayer = event.name;
-//   setStyles(selectedLayer);
-// });
-//
-// // Set initial styles when the page loads
-// document.addEventListener("DOMContentLoaded", function() {
-//   setStyles("Klassika");
-// });
-
-
-
-
 // ------------------------------------------------------------ //
 // ------------------ Marker/Cluster config ------------------- //
 // ------------------------------------------------------------ //
@@ -197,7 +152,7 @@ function createCustomDivIcon() {
 
 
 function loadMarkers() {
-  fetch('http://localhost:8080/v1/stage')
+  fetch(`${baseUrl}/v1/stage`)
     .then(response => response.json())
     .then(markerData => {
       markerData.forEach(data => {
@@ -291,7 +246,7 @@ function loadMarkers() {
         }
 
 
-  fetch(`http://localhost:8080/v1/stage/${data.id}/images/info`)
+  fetch(`${baseUrl}/v1/stage/${data.id}/images/info`)
   .then(response => response.json())
   .then(images => {
     if (images.length > 0) {
@@ -475,7 +430,6 @@ let searchbox = L.control.searchbox({
 // Close and clear searchbox 600ms after pressing "ENTER" in the search box
 searchbox.onInput("keyup", function (e) {
   if (e.keyCode === 13) {
-    // map.setZoom(11);
     setTimeout(function () {
       searchbox.hide();
       searchbox.clear();
@@ -486,7 +440,6 @@ searchbox.onInput("keyup", function (e) {
 // Close and clear searchbox 600ms after clicking the search button
 searchbox.onButton("click", function () {
   setTimeout(function () {
-    // map.setZoom(11);
     searchbox.hide();
     searchbox.clear();
   }, 600);
@@ -498,10 +451,7 @@ searchbox.onInput("keyup", function (e) {
     if (map.getZoom() < 11){
       map.setZoom(11);
     }
-    
-    const searchUrl = 'http://localhost:8080/v1/stage';
-
-    fetch(searchUrl)
+    fetch(`${baseUrl}/v1/stage`)
     .then(response => response.json())
     .then(markerData => {
       const filteredData = markerData.filter(data => {
@@ -515,11 +465,7 @@ searchbox.onInput("keyup", function (e) {
 
           // Add the persons as dropdown options
           persons.forEach(person => {
-            // if (person.varjunimi == null) {
               searchbox.addItem(person.eesnimi + " " + person.perekonnanimi);
-          //   } else {
-          //     searchbox.addItem(person.eesnimi + " " + person.perekonnanimi + " " + person.varjunimi);
-          //   }
           });
 
           // Add click event listener to search result items
@@ -553,9 +499,6 @@ searchbox.onInput("keyup", function (e) {
                   marker.openPopup();
                 }
               }
-              // else {
-              //   // console.error('Popup not found for marker:', marker);
-              // }
             } else {
               console.error('Marker not found for title:', selectedValue);
             }
@@ -576,10 +519,7 @@ searchbox.onInput("keyup", function (e) {
 
 function findMarkerByTitle(title) {
   const markerData = markers.getLayers();
-  // console.log("findMarkerByTitle method log: " + markerData);
   for (const marker of markerData) {
-    // console.log(marker.options.title)
-    // see töötab, leiab inimese nimed (title) üles
     if (marker.options.title === title) {
       return marker;
     }
@@ -603,7 +543,6 @@ function clickZoom(e) {
 // --------------- Back to home button ---------------- //
 // ---------------------------------------------------- //
 const htmlTemplate = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M32 18.451L16 6.031 0 18.451v-5.064L16 .967l16 12.42zM28 18v12h-8v-8h-8v8H4V18l12-9z" /></svg>';
-// const htmlTemplate = 'img/search_icon.png'
 
 // create custom button
 const customControl = L.Control.extend({
@@ -662,54 +601,8 @@ const compareToArrays = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 // ---------------------------------------------------- //
 // ---------------------- MiniMap --------------------- //
 // ---------------------------------------------------- //
-// MiniMap
 const osm2 = new L.TileLayer(osmUrl, { minZoom: 0, maxZoom: 13});
 const miniMap = new L.Control.MiniMap(osm2, { toggleDisplay: true }).addTo(map);
-
-
-
-// ---------------------------------------------------- //
-// ----------------------- Email ---------------------- //
-// ---------------------------------------------------- //
-
-// Add an event listener to the form submission
-document.getElementById('emailForm').addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent the default form submission behavior
-
-  const name = document.getElementById('name').value;
-  const subject = document.getElementById('subject').value;
-
-  // Create an object with the necessary data from your form
-  const emailRequest = {
-    recipient: '1521e4565f2885@inbox.mailtrap.io',
-    name: name,
-    subject: subject
-  };
-  console.log(emailRequest)
-
-  // Send the POST request to the backend
-  fetch('http://localhost:8080/api/v1/email/sendEmail', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(emailRequest)
-  })
-      .then(response => {
-        if (response.ok) {
-          console.log('Email sent successfully');
-          alert('Email sent successfully!');
-        } else {
-          console.log(response)
-          console.log('Failed to send email');
-          alert('Failed to send email. Please try again later.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while sending the email. Please try again later.');
-      });
-});
 
 
 document.addEventListener("visibilitychange", function() {

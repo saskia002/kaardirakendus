@@ -80,7 +80,6 @@
     <!--      <svg><use xlink:href="#icon-search"></use></svg>-->
     <!--    </li>-->
    <li class="menu-item" data-item="download">
-      <svg><use xlink:href="#icon-download"></use></svg>
     </li>
   </ul> 
 
@@ -99,28 +98,6 @@
         </a>
       </div>
     </div>
-    <div class="item-content" id="email">
-      <h2>Anna tagasisidet!</h2>
-      <form id="emailForm" action="http://localhost:8080/api/v1/email/sendEmail" method="post">
-        Nimi:<input type="text" name="name" id="name"><br>
-        Jäta oma kommentaar siia:<br>
-        <textarea name="subject" id="subject" rows="4"></textarea><br>
-        <input type="submit" value="Saada">
-      </form>
-    </div>
-    <div class="item-content" id="download">
-      <h2>Lae alla</h2>
-      <button class="custom-button1" type="button" onclick="openAPIWindow()">Lae alla</button>
-    </div>
-
-    <script>
-      function openAPIWindow() {
-        // Make API request to retrieve person data
-        let apiURL = "http://localhost:8080/v1/stage";
-        let newWindow = window.open(apiURL, "_blank");
-        newWindow.focus();
-      }
-    </script>
   </div>
 </div>
 
