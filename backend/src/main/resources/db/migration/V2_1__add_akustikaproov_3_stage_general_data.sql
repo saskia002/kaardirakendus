@@ -12,14 +12,14 @@ DO $$
 
     BEGIN
         SELECT id INTO width_id FROM stage_data_type WHERE type = 'Laius' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Sügavus' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Astmete arv' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Kuna ehitati' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Kes ehitas' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Ajalugu' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Ilm' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Tuul' AND deleted = false;
-        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Mõõtmise kuupäev' AND deleted = false;
+        SELECT id INTO depth_id FROM stage_data_type WHERE type = 'Sügavus' AND deleted = false;
+        SELECT id INTO step_amount_id FROM stage_data_type WHERE type = 'Astmete arv' AND deleted = false;
+        SELECT id INTO built_when_id FROM stage_data_type WHERE type = 'Kuna ehitati' AND deleted = false;
+        SELECT id INTO built_by_id FROM stage_data_type WHERE type = 'Kes ehitas' AND deleted = false;
+        SELECT id INTO history_id FROM stage_data_type WHERE type = 'Ajalugu' AND deleted = false;
+        SELECT id INTO weather_id FROM stage_data_type WHERE type = 'Ilm' AND deleted = false;
+        SELECT id INTO wind_id FROM stage_data_type WHERE type = 'Tuul' AND deleted = false;
+        SELECT id INTO measure_date_id FROM stage_data_type WHERE type = 'Mõõtmise kuupäev' AND deleted = false;
 
         SELECT id INTO selected_stage_id FROM stage WHERE name = 'Lehetu kõlakoda';
         INSERT INTO stage_data (stage_id, stage_data_type_id, value, deleted, created, edited)
