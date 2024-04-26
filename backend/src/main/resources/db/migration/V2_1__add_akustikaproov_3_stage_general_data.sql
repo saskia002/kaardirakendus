@@ -11,42 +11,15 @@ DO $$
     DECLARE selected_stage_id INTEGER;
 
     BEGIN
-        -- inserting categories
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Laius', false, NOW(), NOW())
-        RETURNING id INTO width_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Sügavus', false, NOW(), NOW())
-        RETURNING id INTO depth_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Astmete arv', false, NOW(), NOW())
-        RETURNING id INTO step_amount_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Kuna ehitati', false, NOW(), NOW())
-        RETURNING id INTO built_when_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Kes ehitas', false, NOW(), NOW())
-        RETURNING id INTO built_by_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Ajalugu', false, NOW(), NOW())
-        RETURNING id INTO history_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Ilm', false, NOW(), NOW())
-        RETURNING id INTO weather_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Tuul', false, NOW(), NOW())
-        RETURNING id INTO wind_id;
-
-        INSERT INTO stage_data_type (type, deleted, created, edited)
-        VALUES ('Mõõtmise kuupäev', false, NOW(), NOW())
-        RETURNING id INTO measure_date_id;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Laius' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Sügavus' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Astmete arv' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Kuna ehitati' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Kes ehitas' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Ajalugu' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Ilm' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Tuul' AND deleted = false;
+        SELECT id INTO width_id FROM stage_data_type WHERE type = 'Mõõtmise kuupäev' AND deleted = false;
 
         SELECT id INTO selected_stage_id FROM stage WHERE name = 'Lehetu kõlakoda';
         INSERT INTO stage_data (stage_id, stage_data_type_id, value, deleted, created, edited)
