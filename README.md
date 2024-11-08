@@ -1,5 +1,7 @@
 # Akustikaproov II
 
+Fututre developments will be done under new repo: github.com/Kultuurihoidla/Akustikaproov
+
 ## Documentation
 
     API documentation: 
